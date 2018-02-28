@@ -8,7 +8,7 @@
    were, and 0 if not. There were outliers in the data, which I found by plotting some of the relevant features together, but the data seemed
    relevant so I kept the outliers in (especially since I was not using regression).
 
-2. The features I ended up using for my POI identifier were ["exercised_stock_options","bonus","expenses"]. Yes I had to do scaling
+2. The features I ended up using for my POI identifier were ["exercised_stock_options","bonus","expenses"]. These features were chosen by plotting the variables and trying to determine where it seemed like poi were seemingly moreso identifiable as well as external research. Yes I had to do scaling
    This is because I used the kneighbors algorithm since this algorithm takes into account distance between points, which would mean a larger
    value for one feature may make that point appear further than it really is relatively. I created the variable "poi_email_interaction," but since
    I did not use it, I did not keep it in the dataset. This feature was the total number of emails to or from the poi to the individual divided by
