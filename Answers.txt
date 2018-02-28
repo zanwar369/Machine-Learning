@@ -1,0 +1,35 @@
+1.	 The goal of this project is to determine who could potentially be involved in the various frauds enacted by Enron back in the late
+   90s and early 2000s. Enron executives used accounting loopholes, shell companies, and misled investors and board members in their many
+   fraudulent activities. We are attempting to identify who would be a person of interest (POI) in this fraud.
+   	 The dataset itself contains information namely financial information of many Enron employees. Some of these financial features include 
+   features such as salaryu and expenses. Email information is also gleaned from the data set, that has been extracted from a large corpus
+   of Enron emails that was made public, and this data includes features such as number of messages to the person, and number of messages
+   from the person. Finally, the data includes information on individuals who have been identified as POIs in a dummy variable of 1 if they
+   were, and 0 if not. There were outliers in the data, which I found by plotting some of the relevant features together, but the data seemed
+   relevant so I kept the outliers in (especially since I was not using regression).
+
+2. The features I ended up using for my POI identifier were ["exercised_stock_options","bonus","expenses"]. Yes I had to do scaling
+   This is because I used the kneighbors algorithm since this algorithm takes into account distance between points, which would mean a larger
+   value for one feature may make that point appear further than it really is relatively. I created the variable "poi_email_interaction," but since
+   I did not use it, I did not keep it in the dataset. This feature was the total number of emails to or from the poi to the individual divided by
+   the total number of emails. This variable was not viable though since most of the information for a lot of these variables was missing,
+   meaning this variable would be even less reliable than the sub-variables. For the decision tree classifier I used, the average feature importances
+   for each of the features was 0.26850566999999997,0.34216167666666664, and 0.38933265666666661 respectively in order.
+
+3. The classifier I ended up using was the KNeighbors Classifier. This was with the best parameters of the auto algorithm, n_neighbors=5, 
+   leaf_size=5 and weights = uniform. Auto chooses the best algorithm to use from the possiblities of ball_tree,kd_tree,and brute based on the parameters. The n neighbors tells the algorithm how many points to look for nearest the point and predict the label from those points.
+   Uniform weight says that further or closer points will have the same affect on the results, and leaf size just affects the speed of the algorithm mainly. I tried a decision tree classifier and Gaussian Naive Bayes Classifier both of which on average had lower accuracy, recall, precision, and f1 scores, especially the Naive Bayes classifier.
+
+4. I tuned the paramters by using GridSearchCV. This allowed me to filter through all of the possibile choices of parameters, I wanted to try, and 
+   see which return the best results automatically. I did this for both the kneighbors classfier and the decision tree classifier, passing different values for criterion and min_samples_split for the decision tree which determine how the information gain is calculated for each split, as well as the lowest number of samples required (so that there will not be any more splits thereafter).
+
+5. Validation is the process of splititng the data into training and testing sets so that one can use the test data to determine if the fit on the 
+   training data returns good results. One classic mistake you can make is use all of the data to fit the classifier and then running the scores on that data itself! To validate my analysis I used the KFold function and created three equal length training and testing data sets from the data.
+   This essentially allows all of the data to be used for both training and testing. I then averaged the scores across all of the runs.
+
+6. Two of the metrics I used for evaluation of my classifier were the F1 score and accuracy. The F1 score allows one to determine how well the
+   algorithm is doing in terms of both precision and recall. Precision gives a sense of how many points the algorithm classified correctly
+   relative to those that were classified incorrectly as part of the group. Recall gives a similar sense of how many points the algorithm classified correctly relative to those that were classified inccorectly as not part of the group. Both of these should be closer to 1. The f1 score
+   is essentially a rough average of these two scores, meaning the higher it is and the closer it is to 1 the better. On average the f1 score for 
+   the Kneighbors classifier was 0.26152982819649484. This means roughly .3 of the points were classified correctly relative to the number of false negatives and false positives. 
+   The accuracy score determines how many points the classifier classified correctly relative to the total number of points. The average accuracy for the Kneighbors classifier was  0.84175084175084169, meaning a high number of points were classified correctly each time since a value closer to 1 means a higher accuracy.
