@@ -10,6 +10,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 import numpy as np
+import pandas as pd
 import pickle
 import sys
 #Opening the correct folder
