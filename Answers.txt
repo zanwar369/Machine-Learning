@@ -5,31 +5,58 @@
    features such as salaryu and expenses. Email information is also gleaned from the data set, that has been extracted from a large corpus
    of Enron emails that was made public, and this data includes features such as number of messages to the person, and number of messages
    from the person. Finally, the data includes information on individuals who have been identified as POIs in a dummy variable of 1 if they
-   were, and 0 if not. There were outliers in the data, which I found by plotting some of the relevant features together, but the data seemed
-   relevant so I kept the outliers in (especially since I was not using regression).
+   were, and 0 if not. There were outliers in the data. The main that needed to be removed was the entry in the data dictionary for TOTAL
+   which was the sum total across all individuals, which would be misleading in any identification of a poi in the dataset since it contained
+   summary statistics.
+    	The data set had 22 variables including the one I created. There 145 individuals in the data set after removing Total. Several variables had
+    missing values in the dataset such as from_poi_to_this_person. There are 18 identified poi's in teh dataset.
 
-2. The features I ended up using for my POI identifier were ["exercised_stock_options","bonus","expenses"]. These features were chosen by plotting the variables and trying to determine where it seemed like poi were seemingly moreso identifiable as well as external research. Yes I had to do scaling
+
+2. The features I ended up using for my POI identifier were ['exercised_stock_options','total_stock_value','bonus','salary']. Yes I had to scale
    This is because I used the kneighbors algorithm since this algorithm takes into account distance between points, which would mean a larger
-   value for one feature may make that point appear further than it really is relatively. I created the variable "poi_email_interaction," but since
-   I did not use it, I did not keep it in the dataset. This feature was the total number of emails to or from the poi to the individual divided by
+   value for one feature may make that point appear further than it really is relatively. I created the variable "poi_email_interaction". This feature was the total number of emails to or from the poi to the individual divided by
    the total number of emails. This variable was not viable though since most of the information for a lot of these variables was missing,
-   meaning this variable would be even less reliable than the sub-variables. For the decision tree classifier I used, the average feature importances
-   for each of the features was 0.26850566999999997,0.34216167666666664, and 0.38933265666666661 respectively in order.
+   meaning this variable would be even less reliable than the sub-variables. I used SelectKBest to determine what features to use. Here are the scores associated with each variable:
+											 {'bonus': 21.060001707536571,
+											 'deferral_payments': 0.2170589303395084,
+											 'deferred_income': 11.595547659730601,
+											 'director_fees': 2.1076559432760908,
+											 'exercised_stock_options': 25.097541528735491,
+											 'expenses': 6.2342011405067401,
+											 'from_messages': 0.16416449823428736,
+											 'from_poi_to_this_person': 5.3449415231473374,
+											 'from_this_person_to_poi': 2.4265081272428781,
+											 'loan_advances': 7.2427303965360181,
+											 'long_term_incentive': 10.072454529369441,
+											 'poi_email_interaction': nan,
+											 'restricted_stock': 9.3467007910514877,
+											 'restricted_stock_deferred': 0.06498431172371151,
+											 'salary': 18.575703268041785,
+											 'shared_receipt_with_poi': 8.7464855321290802,
+											 'to_messages': 1.6988243485808501,
+											 'total_payments': 8.8667215371077752,
+											 'total_stock_value': 24.467654047526398
+    
+    As can be seen poi_email_interaction is completely useless. These scores are the F-values associated with ANOVA on the poi labels. They are telling us how significantly each of the means of these variables differ. The higher means the more prounced of a difference between a poi and a non-poi according to the test. Hence poi_email interactions is not even readable by this test because of all of the missing values. The features
+    chosen have the highest F-scores. 4 were chosen in particular because this had the best affect on the classifications (checked manually).
 
-3. The classifier I ended up using was the KNeighbors Classifier. This was with the best parameters of the auto algorithm, n_neighbors=5, 
+
+3. The classifier I ended up using was the Gaussian Naive Bayes Classifier. This suprisingly gave good results in terms of precision and recall. The 	other classifier I tried was the KNearest Neighbors with the best parameters of the auto algorithm, n_neighbors=5, 
    leaf_size=5 and weights = uniform. Auto chooses the best algorithm to use from the possiblities of ball_tree,kd_tree,and brute based on the parameters. The n neighbors tells the algorithm how many points to look for nearest the point and predict the label from those points.
-   Uniform weight says that further or closer points will have the same affect on the results, and leaf size just affects the speed of the algorithm mainly. I tried a decision tree classifier and Gaussian Naive Bayes Classifier both of which on average had lower accuracy, recall, precision, and f1 scores, especially the Naive Bayes classifier.
+   Uniform weight says that further or closer points will have the same affect on the results, and leaf size just affects the speed of the algorithm mainly. I tried a decision tree classifier and KNearest Classifier both of which on average had lower recall and precision.
 
 4. I tuned the paramters by using GridSearchCV. This allowed me to filter through all of the possibile choices of parameters, I wanted to try, and 
    see which return the best results automatically. I did this for both the kneighbors classfier and the decision tree classifier, passing different values for criterion and min_samples_split for the decision tree which determine how the information gain is calculated for each split, as well as the lowest number of samples required (so that there will not be any more splits thereafter).
+   Generally parameter tuning is required to search out which values will give the best fit to the data and allow for a better bias, variance trade-off or essentially the trade off between a too simple model and an overfit one. The paramters, also, allow for increased accuracy and other metrics. If it is not done well, you can lose accuracy, and have overfit models, or too simple ones. The Gaussian Naive Bayes classifier did not
+   need any tuning but the other classifiers did in order to see what their best fits would return.
+
 
 5. Validation is the process of splititng the data into training and testing sets so that one can use the test data to determine if the fit on the 
    training data returns good results. One classic mistake you can make is use all of the data to fit the classifier and then running the scores on that data itself! To validate my analysis I used the KFold function and created three equal length training and testing data sets from the data.
    This essentially allows all of the data to be used for both training and testing. I then averaged the scores across all of the runs.
 
-6. Two of the metrics I used for evaluation of my classifier were the F1 score and accuracy. The F1 score allows one to determine how well the
-   algorithm is doing in terms of both precision and recall. Precision gives a sense of how many points the algorithm classified correctly
-   relative to those that were classified incorrectly as part of the group. Recall gives a similar sense of how many points the algorithm classified correctly relative to those that were classified inccorectly as not part of the group. Both of these should be closer to 1. The f1 score
-   is essentially a rough average of these two scores, meaning the higher it is and the closer it is to 1 the better. On average the f1 score for 
-   the Kneighbors classifier was 0.26152982819649484. This means roughly .3 of the points were classified correctly relative to the number of false negatives and false positives. 
-   The accuracy score determines how many points the classifier classified correctly relative to the total number of points. The average accuracy for the Kneighbors classifier was  0.84175084175084169, meaning a high number of points were classified correctly each time since a value closer to 1 means a higher accuracy.
+
+6. Two of the metrics I used for evaluation of my classifier were accuracy and preicison. Precision gives a sense of how many points the algorithm 
+   classified correctly relative to those that were classified incorrectly as part of the group. Recall gives a similar sense of how many points the algorithm classified correctly relative to those that were classified inccorectly as not part of the group. Both of these should be closer to 1. 
+   In the context of this project preicison measures the number of points that were classified as poi correctly relative to those that were classified as poi when they were not. Recall measures the number of points that were classified as poi correctly relative to those that were
+   classified as non-poi even though they were. On average the Gaussian Naive Bayes scored around .3 for each of these metrics, meaning about 30% were classified correctly relative to each of the respective false classifications of pois. The other classifiers such as the KNearest Neighbors and the decision tree classifier both perform very well on multiple occasions, returning precision as high as .6 sometimes, but on average return results much lower for recall, and much lower for both across all iterations of the shuffling. 

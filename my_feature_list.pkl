@@ -3,8 +3,10 @@ S'poi'
 p1
 aS'exercised_stock_options'
 p2
-aS'bonus'
+aS'total_stock_value'
 p3
-aS'expenses'
+aS'bonus'
 p4
+aS'salary'
+p5
 a.
